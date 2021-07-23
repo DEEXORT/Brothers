@@ -1,0 +1,43 @@
+<!--  <label type="text">Редактор игр</label>-->
+<select class="custom-select" [ngModel]="gameId" (ngModelChange)="onSelectGame($event)">
+  <option [value]="0">Добавить игру</option>
+  <ng-container *ngFor="let game of games">
+    <option [value]="game.id">{{game.date}} | {{game.name}} | {{game.score}} ({{game.result}})</option>
+  </ng-container>
+</select>
+<hr>
+
+<form *ngIf="game" [formGroup]="formGame" (ngSubmit)="onSaveGame()">
+  <fieldset class="form-group">
+    <legend class="mt-6">{{game.name}}</legend>
+
+    <div class="form-row pl-1 mb-2 d-flex align-items-baseline">
+      <label type="text">Название игры</label>
+      <input formControlName="name" class="form-control" type="text" placeholder="Input">
+    </div>
+
+    <div class="form-row pl-1 mb-2 d-flex align-items-baseline">
+      <label class="col-12" type="text">Дата (в формате "DD/MM/YYYY"!)</label>
+      <!--          <input id="input-game-date" formControlName="date" class="uk-input uk-margin-bottom" type="text"-->
+      <!--                 placeholder="Input">-->
+      <app-date-form [value]="dateValue" (takeDate)="onTakeDate($event)"></app-date-form>
+    </div>
+
+    <div class="form-row pl-1 mb-2 d-flex align-items-baseline">
+      <label type="text">Результат</label>
+      <select formControlName="result" class="custom-select">
+        <option>Победа</option>
+        <option>Проигрыш</option>
+      </select>
+    </div>
+
+    <div class="form-row pl-1 mb-2 d-flex align-items-baseline">
+      <label type="text">Счёт</label>
+      <input formControlName="score" class="form-control" type="text" placeholder="Input">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+    <button type="button" class="btn btn-danger ml-3" (click)="onDeleteGame(game.id)">Удалить игру</button>
+
+  </fieldset>
+</form>

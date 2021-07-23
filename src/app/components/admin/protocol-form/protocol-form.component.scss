@@ -1,0 +1,77 @@
+.cursor-pointer{
+  cursor: pointer;
+}
+
+.dex-sidebar {
+  position: fixed;
+  background: blue;
+  top: 0;
+  right: 0;
+  width: 20vw;
+  height: 100vh;
+}
+
+.dex-sidebar-on {
+  animation: 2s linear 0s 1 forwards dex-sidebar-on;
+}
+
+@keyframes dex-sidebar-on{
+  0% {
+    right: 0;
+  }
+  100% {
+    right: 100px;
+  }
+}
+
+
+.dex-select-players {
+  height: 20vh;
+  overflow-y: scroll;
+}
+
+.dex-protocol-scroll {
+  overflow-x: scroll;
+  //width: 80vw;
+}
+
+.dex-grid {
+  display: grid;
+  grid-template-columns: 150px repeat(11, 62px);
+  grid-column-gap: 20px;
+}
+
+
+
+.bs-canvas-overlay {
+  opacity: 0;
+  z-index: -1;
+}
+
+.bs-canvas-overlay.show {
+  opacity: 0.85;
+  z-index: 1100;
+}
+
+.bs-canvas {
+  top: 0;
+  width: 0;
+  z-index: 1110;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.bs-canvas-left {
+  left: 0;
+}
+
+.bs-canvas-right {
+  right: 0;
+}
+
+.bs-canvas-anim {
+  transition: all .4s ease-out;
+  -webkit-transition: all .4s ease-out;
+  -moz-transition: all .4s ease-out;
+  -ms-transition: all .4s ease-out;
+}

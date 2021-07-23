@@ -1,0 +1,145 @@
+.img {
+  position: relative;
+  overflow: hidden;
+  height: auto;
+  min-width: 340px;
+}
+
+
+
+.img-field {
+  position: relative;
+  background: center / contain no-repeat url("/assets/images/baseball_field_5.jpg");
+  //background: center / contain no-repeat url("https://www.salesarchitects.com/wp-content/uploads/2015/02/baseball-diamond.jpg");
+  width: 310px;
+  height: 270px;
+}
+
+.marker {
+  position: absolute;
+  background-color: white;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+
+  & p {
+    width: 100%;
+    height: 100%;
+    color: white;
+    text-align: center;
+  }
+
+  &.catcher {
+    top: 85%;
+    left: 45.5%;
+  }
+
+  &.pitcher {
+    top: 62%;
+    left: 45.5%;
+  }
+
+  &.firstBase {
+    top: 52%;
+    left: 65%;
+  }
+
+  &.secondBase {
+    top: 40%;
+    left: 55%;
+  }
+
+  &.shortStop {
+    top: 40%;
+    left: 35%;
+  }
+
+  &.thirdBase {
+    top: 52%;
+    left: 25%;
+  }
+
+  &.leftField {
+    top: 25%;
+    left: 15%;
+  }
+
+  &.centralField {
+    top: 10%;
+    left: 45.5%;
+  }
+
+  &.rightField {
+    top: 25%;
+    left: 75%;
+  }
+
+  &.enable {
+    background-color: dodgerblue;
+  }
+
+  &.disable {
+    background-color: rgba(gray, 1);
+    & p {
+      color: black;
+    }
+  }
+
+}
+
+
+
+
+
+
+
+
+
+
+.dot {
+  position: absolute;
+  width: 4%;
+  height: 4%;
+  background-color: white;
+  border: 3px solid green;
+  border-radius: 100%;
+}
+
+#dot1 {
+  top: 49%;
+  left: 30%;
+}
+
+#dot2 {
+  bottom: 15%;
+  left: 30%;
+}
+
+#dot3 {
+  top: 56%;
+  left: 80%;
+}
+
+.dot span:before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 2px;
+  height: 30px;
+  background-color: green;
+}
+
+.dot span {
+  content: "";
+  display: block;
+  position: absolute;
+  bottom: 32px;
+  right: -2px;
+  padding: 1px 5px;
+  background-color: green;
+  color: white;
+  white-space: nowrap;
+  font-family: monospace;
+}

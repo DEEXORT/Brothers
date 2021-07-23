@@ -1,0 +1,70 @@
+<div flex-wrap="nowrap">
+  <select [ngModel]="protocolId" (ngModelChange)="onSelectProtocol($event)" class="custom-select">
+    <option [value]="0">Добавить протокол</option>
+    <ng-container *ngFor="let protocol of protocols">
+      <option [value]="protocol.id">{{protocol.name}}</option>
+    </ng-container>
+  </select>
+  <hr>
+
+
+  <div *ngIf="protocol">
+    <label type="text">Выбрать игру</label>
+    <select class="custom-select" [ngModel]="gameId" (ngModelChange)="onSelectGame($event)">
+      <ng-container *ngFor="let game of games">
+        <option [value]="game.id">{{game.date}} | {{game.name}} | {{game.score}} ({{game.result}})</option>
+      </ng-container>
+    </select>
+  </div>
+
+  <div *ngIf="protocol">
+    <a class="btn btn-primary mt-3" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+      Добавить игрока
+    </a>
+    <div class="collapse" id="collapseExample">
+      <div class="card card-body dex-select-players mt-3">
+        <ng-container *ngFor="let player of players">
+          <div class="btn cursor-pointer" [ngClass]="onCheckSelect(player.id) ? 'btn-primary' : ''"
+               (click)="onSelectPlayer(player.id)">
+            <a class=" float-left">
+              {{player.name}}
+            </a>
+          </div>
+          <br>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <form *ngIf="protocol" [formGroup]="formProtocol" (ngSubmit)="onSaveProtocol()" class="mt-5">
+    <div class="form-group">
+      <fieldset class="dex-protocol-scroll">
+      <div class="dex-grid">
+        <div>Игрок</div>
+        <div>PA</div>
+        <div>R</div>
+        <div>RBI</div>
+        <div>BB</div>
+        <div>HBP</div>
+        <div>1B</div>
+        <div>2B</div>
+        <div>3B</div>
+        <div>SO</div>
+        <div>GO</div>
+        <div>FO</div>
+      </div>
+      <hr>
+      <ng-container *ngFor="let stats of statsOfPlayersForProtocol; let i = index">
+        <app-protocol-form-players [value]="stats" [playerName]="onGetPlayerName(stats.player_id)"
+                                   (takeForm)="onTakeForm($event)"></app-protocol-form-players>
+      </ng-container>
+
+    </fieldset>
+    </div>
+    <button type="submit" class="btn btn-primary mt-6">Сохранить</button>
+    <button type="button" (click)="onDeleteProtocol(protocol.id)" class="btn btn-danger ml-3">Удалить
+      протокол
+    </button>
+
+  </form>
+</div>

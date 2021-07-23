@@ -1,0 +1,116 @@
+<div *ngIf="player">
+  <h3 class="ml-3 mt-3">{{player.name}}</h3>
+  <hr>
+</div>
+
+<div class="container">
+  <div class="row">
+
+    <div *ngIf="player" class="col">
+      <div><span class="font-weight-bolder">Имя: </span><span>{{player.name}}</span></div>
+      <div><span class="font-weight-bolder">Игровой номер: </span><span>{{player.game_number}}</span></div>
+      <!--    <div *ngIf="position" class="uk-margin"><span class="uk-text-bolder">Позиция в защите: </span>-->
+      <!--      <span *ngIf="position.pitcher">P, </span>-->
+      <!--      <span *ngIf="position.catcher">C, </span>-->
+      <!--      <span *ngIf="position.firstBase">1B, </span>-->
+      <!--      <span *ngIf="position.secondBase">2B, </span>-->
+      <!--      <span *ngIf="position.thirdBase">3B, </span>-->
+      <!--      <span *ngIf="position.shortStop">SS, </span>-->
+      <!--      <span *ngIf="position.leftField">LF, </span>-->
+      <!--      <span *ngIf="position.centralField">CF, </span>-->
+      <!--      <span *ngIf="position.rightField">RF, </span>-->
+      <!--    </div>-->
+      <div><span class="font-weight-bolder">На бите: </span><span>{{player.bat}}</span></div>
+      <div><span class="font-weight-bolder">Бросковая рука: </span><span>{{player.throw}}</span></div>
+    </div>
+
+    <div *ngIf="position" class="img col-8">
+      <div class="img-field">
+        <!-- <img src="assets/images/baseball_field(3)" width="310" height="270"> -->
+        <div [ngClass]="position.catcher ? 'enable' : 'disable'"
+             class="marker catcher">
+          <p>C</p>
+        </div>
+        <div [ngClass]="position.pitcher ? 'enable' : 'disable'"
+             class="marker pitcher">
+          <p>P</p>
+        </div>
+        <div [ngClass]="position.firstBase ? 'enable' : 'disable'"
+             class="marker firstBase">
+          <p>1B</p>
+        </div>
+        <div [ngClass]="position.secondBase ? 'enable' : 'disable'"
+             class="marker secondBase">
+          <p>2B</p>
+        </div>
+        <div [ngClass]="position.shortStop ? 'enable' : 'disable'"
+             class="marker shortStop">
+          <p>SS</p>
+        </div>
+        <div [ngClass]="position.thirdBase ? 'enable' : 'disable'"
+             class="marker thirdBase">
+          <p>3B</p>
+        </div>
+        <div [ngClass]="position.leftField ? 'enable' : 'disable'"
+             class="marker leftField">
+          <p>LF</p>
+        </div>
+        <div [ngClass]="position.centralField ? 'enable' : 'disable'"
+             class="marker centralField">
+          <p>CF</p>
+        </div>
+        <div [ngClass]="position.rightField ? 'enable' : 'disable'"
+             class="marker rightField">
+          <p>RF</p>
+        </div>
+      </div>
+      <!--        <a [ngClass]="position.pitcher ? 'uk-background-primary' : 'uk-background-second'"-->
+      <!--           class="position-absolute" style="left: 43%; top: 75%" href="/stats/{{player.id}}">P</a>-->
+
+
+
+      <!--      <button [ngClass]="position.pitcher ? 'btn-primary' : 'btn-secondary'"-->
+      <!--              type="button" class="position-relative btn rounded-circle" data-container="body" data-toggle="popover" style="left: 40.2%; bottom: 31.5%"-->
+      <!--              data-placement="bottom" data-content="Кетчеры">P</button>-->
+
+      <!--      <button [ngClass]="position.firstBase ? 'btn-primary' : 'btn-secondary'"-->
+      <!--              type="button" class="position-relative btn rounded-circle" data-container="body" data-toggle="popover" style="right: 32%; bottom: 45%"-->
+      <!--              data-placement="bottom" data-content="Кетчеры">1B</button>-->
+
+      <!--      <button [ngClass]="position.thirdBase ? 'btn-primary' : 'btn-secondary'"-->
+      <!--              type="button" class="position-relative btn rounded-circle" data-container="body" data-toggle="popover" style="left: 22%; bottom: 45%"-->
+      <!--              data-placement="bottom" data-content="Кетчеры">3B</button>-->
+
+      <!--      <button [ngClass]="position.leftField ? 'btn-primary' : 'btn-secondary'"-->
+      <!--              type="button" class="position-relative btn rounded-circle" data-container="body" data-toggle="popover" style="left: 12%; bottom: 70%"-->
+      <!--              data-placement="bottom" data-content="Кетчеры">LF</button>-->
+
+
+
+
+      <!--        <a [ngClass]="position.catcher ? 'uk-background-primary' : 'uk-background-second'"-->
+      <!--           class="uposition-absolute" style="left: 53%; top: 95%" href="#">C</a>-->
+      <!--        <div uk-dropdown="mode: click">-->
+      <!--          Кетчеры:<br>-->
+      <!--          Гимальдинов Денис<br>-->
+      <!--          Посадский Максим<br>-->
+      <!--          и т.д.-->
+      <!--        </div>-->
+      <!--        <a [ngClass]="position.shortStop ? 'uk-background-primary' : 'uk-background-second'"-->
+      <!--           class="uk-position-absolute uk-transform-center" style="left: 45%; top: 39.5%" href="#" uk-marker>SS</a>-->
+      <!--        <a [ngClass]="position.firstBase ? 'uk-background-primary' : 'uk-background-second'"-->
+      <!--           class="uk-position-absolute uk-transform-center" style="left: 70%; top: 54%" href="#" uk-marker>1B</a>-->
+      <!--        <a [ngClass]="position.secondBase ? 'uk-background-primary' : 'uk-background-second'"-->
+      <!--           class="uk-position-absolute uk-transform-center" style="left: 65%; top: 39.5%" href="#" uk-marker>2B</a>-->
+      <!--        <a [ngClass]="position.thirdBase ? 'uk-background-primary' : 'uk-background-second'"-->
+      <!--           class="uk-position-absolute uk-transform-center" style="left: 32.9%; top: 54%" href="#" uk-marker>3B</a>-->
+      <!--        <a [ngClass]="position.leftField ? 'uk-background-primary' : 'uk-background-second'"-->
+      <!--           class="uk-position-absolute uk-transform-center" style="left: 25%; top: 30%" href="#" uk-marker>LF</a>-->
+      <!--        <a [ngClass]="position.centralField ? 'uk-background-primary' : 'uk-background-second'"-->
+      <!--           class="uk-position-absolute uk-transform-center" style="left: 55%; top: 15%" href="#" uk-marker>CF</a>-->
+      <!--        <a [ngClass]="position.rightField ? 'uk-background-primary' : 'uk-background-second'"-->
+      <!--           class="uk-position-absolute uk-transform-center" style="left: 80%; top: 30%" href="#" uk-marker>RF</a>-->
+    </div>
+  </div>
+</div>
+<hr>

@@ -1,0 +1,25 @@
+<form (change)="onFormChange($event)" [formGroup]="formStatsValues">
+  <!--  <div class="uk-child-width-expand@s uk-text-center">-->
+  <div class="dex-grid">
+    <div>
+      {{playerName}}
+    </div>
+    <div>
+      <input formControlName="pa" class="form-control" type="text"
+             placeholder="">
+    </div>
+    <div><input formControlName="run" class="form-control"
+                type="text" placeholder=""></div>
+    <div><input formControlName="rbi" class="form-control" type="text" placeholder=""></div>
+    <div><input formControlName="bb" class="form-control" type="text" placeholder=""></div>
+    <div><input formControlName="hbp" class="form-control" type="text" placeholder=""></div>
+    <div><input formControlName="one_b" class="form-control" type="text" placeholder=""></div>
+    <div><input formControlName="two_b" class="form-control" type="text" placeholder=""></div>
+    <div><input formControlName="three_b" class="form-control" type="text" placeholder=""></div>
+    <div><input formControlName="so" class="form-control" type="text" placeholder=""></div>
+    <div><input formControlName="go" class="form-control" type="text" placeholder=""></div>
+    <div><input formControlName="fo" class="form-control" type="text" placeholder=""></div>
+  </div>
+  <hr>
+
+</form>

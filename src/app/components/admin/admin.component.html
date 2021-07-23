@@ -1,0 +1,25 @@
+<div *ngIf="authAdmin" class="row mt-3">
+  <div class="col-md-2">
+    <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+      <a class="nav-link active" id="players" data-toggle="tab" href="#editPlayers" role="tab" aria-controls="home" aria-selected="true">Редактор игроков</a>
+      <a class="nav-link" id="games" data-toggle="tab" href="#editGames" role="tab" aria-controls="profile" aria-selected="false">Редактор игр</a>
+      <a class="nav-link" id="protocols" data-toggle="tab" href="#editProtocols" role="tab" aria-controls="contact" aria-selected="false">Редактор протоколов</a>
+    </div>
+    <hr>
+  </div>
+
+  <div class="col-8 ml-3">
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade show active" id="editPlayers" role="tabpanel" aria-labelledby="players">
+        <app-player-form></app-player-form>
+      </div>
+      <div class="tab-pane fade" id="editGames" role="tabpanel" aria-labelledby="games">
+        <app-game-form></app-game-form>
+      </div>
+      <div class="tab-pane fade" id="editProtocols" role="tabpanel" aria-labelledby="protocols">
+        <app-stat-form></app-stat-form>
+      </div>
+    </div>
+  </div>
+
+</div>

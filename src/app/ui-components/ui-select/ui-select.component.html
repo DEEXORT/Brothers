@@ -1,0 +1,7 @@
+<select class="custom-select" [name]="selectName" (change)="onSelect($event)">
+  <label type="text">{{label}}</label>
+  <option [value]="0">{{defaultOption}}</option>
+  <ng-container *ngFor="let item of list">
+    <option [value]="item.id">{{item.name}}</option>
+  </ng-container>
+</select>

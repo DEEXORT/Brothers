@@ -11,5 +11,3 @@ export interface IPosition {
   centralField: number;
   rightField: number;
 }
-
-

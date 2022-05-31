@@ -1,43 +1,88 @@
 <!--  <label type="text">Редактор игр</label>-->
-<select class="custom-select" [ngModel]="gameId" (ngModelChange)="onSelectGame($event)">
-  <option [value]="0">Добавить игру</option>
-  <ng-container *ngFor="let game of games">
-    <option [value]="game.id">{{game.date}} | {{game.name}} | {{game.score}} ({{game.result}})</option>
-  </ng-container>
-</select>
-<hr>
+<div flex-wrap="nowrap">
+  <select class="custom-select" [ngModel]="gameId" (ngModelChange)="onSelectGame($event)">
+    <option [value]="0">Добавить игру</option>
+    <ng-container *ngFor="let game of games">
+      <option [value]="game.id">{{game.date}} | {{game.name}}</option>
+    </ng-container>
+  </select>
+  <hr>
 
-<form *ngIf="game" [formGroup]="formGame" (ngSubmit)="onSaveGame()">
-  <fieldset class="form-group">
-    <legend class="mt-6">{{game.name}}</legend>
+  <form *ngIf="game" [formGroup]="formGame">
+    <div class="form-group">
+      <legend class="mt-6">{{game.name}}</legend>
 
-    <div class="form-row pl-1 mb-2 d-flex align-items-baseline">
-      <label type="text">Название игры</label>
-      <input formControlName="name" class="form-control" type="text" placeholder="Input">
+        <label type="text">Название игры</label>
+        <input name="name" formControlName="name"  class="form-control" type="text" placeholder="Введите название игры">
     </div>
 
-    <div class="form-row pl-1 mb-2 d-flex align-items-baseline">
-      <label class="col-12" type="text">Дата (в формате "DD/MM/YYYY"!)</label>
-      <!--          <input id="input-game-date" formControlName="date" class="uk-input uk-margin-bottom" type="text"-->
-      <!--                 placeholder="Input">-->
-      <app-date-form [value]="dateValue" (takeDate)="onTakeDate($event)"></app-date-form>
-    </div>
+      <div class="form-row pl-1 mb-2 d-flex align-items-baseline">
+        <label class="col-12" type="text">Дата</label>
+        <app-date-form [value]="dateValue" (takeDate)="onTakeDate($event)"></app-date-form>
+      </div>
 
-    <div class="form-row pl-1 mb-2 d-flex align-items-baseline">
-      <label type="text">Результат</label>
-      <select formControlName="result" class="custom-select">
-        <option>Победа</option>
-        <option>Проигрыш</option>
-      </select>
-    </div>
+  </form>
 
-    <div class="form-row pl-1 mb-2 d-flex align-items-baseline">
-      <label type="text">Счёт</label>
-      <input formControlName="score" class="form-control" type="text" placeholder="Input">
-    </div>
+  <div *ngIf="game">
+    <fieldset class="dex-protocol-scroll mt-5">
+      <div class="dex-grid">
+        <div>Команды</div>
+        <div class="center">1</div>
+        <div class="center">2</div>
+        <div class="center">3</div>
+        <div class="center">4</div>
+        <div class="center">5</div>
+        <div class="center">6</div>
+        <div class="center">7</div>
+        <div class="center">8</div>
+        <div class="center">9</div>
+        <div class="center">R</div>
+      </div>
+      <hr>
+      <!--        Строка гостей-->
+      <div class="dex-grid">
+        <ng-container *ngIf="teamVisitor">
+          <select class="custom-select" [ngModel]="teamVisitor.id" (ngModelChange)="onSelectTeam($event,1)">
+            <option [value]="0">Выбрать команду</option>
+            <ng-container *ngFor="let item of teams">
+              <option [value]="item.id">{{item.name}}</option>
+            </ng-container>
+          </select>
+        </ng-container>
 
-    <button type="submit" class="btn btn-primary">Сохранить</button>
-    <button type="button" class="btn btn-danger ml-3" (click)="onDeleteGame(game.id)">Удалить игру</button>
+        <ng-container [formGroup]="formGame">
+          <ng-container *ngFor="let control of visitorInningsControls.controls; let index= index">
+            <div><input [name]="'visitor' + index" [formControl]="control"  class="form-control" type="number"></div>
+          </ng-container>
+        </ng-container>
+        <div [formGroup]="formGame"><input formControlName="visitor_sum_runs" class="form-control" type="number"></div>
+      </div>
+      <!--        Строка хозяев-->
+      <div class="dex-grid mb-3">
+        <ng-container *ngIf="teamHost">
+          <select class="custom-select" [ngModel]="teamHost.id" (ngModelChange)="onSelectTeam($event,0)">
+            <option [value]="0">Выбрать команду</option>
+            <ng-container *ngFor="let item of teams">
+              <option [value]="item.id">{{item.name}}</option>
+            </ng-container>
+          </select>
+        </ng-container>
 
-  </fieldset>
-</form>
+        <ng-container *ngIf="hostInningsControls" [formGroup]="formGame">
+          <ng-container *ngFor="let control of hostInningsControls.controls; let index= index">
+            <div><input [name]="'host' + index" [formControl]="control"  class="form-control" type="number"></div>
+          </ng-container>
+        </ng-container>
+        <div [formGroup]="formGame"><input formControlName="host_sum_runs" class="form-control" type="number"></div>
+      </div>
+
+    </fieldset>
+
+    <button class="btn mt-3 btn-primary" (click)="onSaveGame()">Отправить</button>
+    <button type="button" class="btn btn-danger ml-3 mt-3" (click)="onDeleteGame(game.id)">Удалить игру</button>
+  </div>
+
+
+
+
+</div>

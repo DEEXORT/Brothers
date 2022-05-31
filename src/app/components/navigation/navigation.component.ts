@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
+import {AuthService} from '../../auth.service';
 
 @Component({
   selector: 'app-navigation',
@@ -7,9 +8,8 @@ import {Router} from '@angular/router';
   styleUrls: ['./navigation.component.scss']
 })
 export class NavigationComponent implements OnInit {
-  public authAdmin = false;
 
-  constructor(private router: Router) {
+  constructor(private router: Router, public authService: AuthService) {
   }
 
   ngOnInit(): void {
@@ -28,7 +28,6 @@ export class NavigationComponent implements OnInit {
   public onCheckAdmnin(): void {
     const getAuth = localStorage.getItem('auth');
     if (getAuth === 'user_Администратор') {
-      this.authAdmin = true;
     }
   }
 

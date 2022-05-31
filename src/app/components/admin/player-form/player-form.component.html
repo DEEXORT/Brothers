@@ -96,32 +96,11 @@
       </div>
     </div>
 
-    <div class="form-row pl-1 mb-2 d-flex align-items-baseline">
-      <label class="mr-2 mt-3" type="text">Права доступа</label>
-      <select class="custom-select" formControlName="role">
-        <option>Пользователь</option>
-        <option>Администратор</option>
-        <option>Редактор</option>
-      </select>
-    </div>
-
-
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-      Задать логин/пароль
-    </button>
-
-    <div class="form-row pl-1 mb-2 d-flex align-items-baseline">
-      <label for="validationDefaultUsername" class="form-label mr-2">Логин</label>
-      <input id="validationDefaultUsername" [checked]="formPlayer.value.role === 'Администратор' || formPlayer.value.role === 'Редактор'"
-             class="form-control" formControlName="login" type="text" placeholder="Введите логин" aria-describedby="inputGroupPrepend2"
-             required>
-    </div>
-
-    <div class="form-row pl-1 mb-2 d-flex align-items-baseline">
-      <label class="mr-2">Пароль</label>
-      <input [checked]="formPlayer.value.role === 'Администратор' || formPlayer.value.role === 'Редактор'"
-             class="form-control" formControlName="password" type="password" placeholder="Введите пароль" required>
-    </div>
+<!--    <div class="custom-file">-->
+<!--      <input type="file" class="custom-file-input" id="customFile" requiredFileType="image/png"-->
+<!--             alt="Изображение не отображается"(change)="onFileSelected($event)" #fileUpload>-->
+<!--      <label class="custom-file-label" for="customFile">Загрузить изображение</label>-->
+<!--    </div>-->
 
     <button class="btn btn-primary mt-3" type="submit" data-bs-toggle="modal" data-bs-target="#errorlogin">Сохранить</button>
     <button class="btn btn-danger ml-3 mt-3" (click)="onDeletePlayer(player.id)">Удалить игрока

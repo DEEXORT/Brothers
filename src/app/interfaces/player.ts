@@ -7,7 +7,6 @@ export interface IPlayer {
   throw?: string;
   photo?: any;
   game_number?: string;
-  role?: string;
 }
 
 export interface IPlayerExt extends IPlayer, IStat {

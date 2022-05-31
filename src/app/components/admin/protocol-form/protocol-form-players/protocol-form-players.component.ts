@@ -36,6 +36,8 @@ export class ProtocolFormPlayersComponent implements OnInit {
       so: ['', new Validators()],
       go: ['', new Validators()],
       fo: ['', new Validators()],
+      ro: ['', new Validators()],
+      hr: ['', new Validators()],
     });
     if (this.value){
       this.formStatsValues.setValue(this.value);

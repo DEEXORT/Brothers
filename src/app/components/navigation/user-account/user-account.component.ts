@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {UiModalService} from '../../../services/ui-modal.service';
+import {AuthService} from '../../../auth.service';
 
 @Component({
   selector: 'app-user-account',
@@ -12,7 +13,8 @@ export class UserAccountComponent implements OnInit {
 
   constructor(
     private fm: FormBuilder,
-    private modal: UiModalService
+    private modal: UiModalService,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -24,7 +26,7 @@ export class UserAccountComponent implements OnInit {
   }
 
   public logOff(): void {
-    localStorage.clear();
+    this.authService.logout();
     window.location.reload();
   }
 

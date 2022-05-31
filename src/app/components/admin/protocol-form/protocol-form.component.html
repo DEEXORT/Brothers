@@ -12,7 +12,7 @@
     <label type="text">Выбрать игру</label>
     <select class="custom-select" [ngModel]="gameId" (ngModelChange)="onSelectGame($event)">
       <ng-container *ngFor="let game of games">
-        <option [value]="game.id">{{game.date}} | {{game.name}} | {{game.score}} ({{game.result}})</option>
+        <option [value]="game.id">{{game.date}} | {{game.name}}</option>
       </ng-container>
     </select>
   </div>
@@ -49,9 +49,11 @@
         <div>1B</div>
         <div>2B</div>
         <div>3B</div>
+        <div>HR</div>
         <div>SO</div>
         <div>GO</div>
         <div>FO</div>
+        <div>RO</div>
       </div>
       <hr>
       <ng-container *ngFor="let stats of statsOfPlayersForProtocol; let i = index">
@@ -61,6 +63,7 @@
 
     </fieldset>
     </div>
+
     <button type="submit" class="btn btn-primary mt-6">Сохранить</button>
     <button type="button" (click)="onDeleteProtocol(protocol.id)" class="btn btn-danger ml-3">Удалить
       протокол

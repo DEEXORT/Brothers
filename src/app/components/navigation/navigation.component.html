@@ -17,20 +17,19 @@
              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Статистика</a>
 
           <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-            <!--          <a [routerLink]="'/stats/' + 'all'" class="dropdown-item">Общая статистика команды</a>-->
-            <a class="dropdown-item" href="/stats/all">Общая статистика команды</a>
-            <!--          <app-statistic></app-statistic>-->
-            <!--          <ng-container *ngFor="let player of players">-->
-            <!--            <a [routerLink]="'/stats/' + '2019'" class="dropdown-item">Сезон 2019</a>-->
-            <a class="dropdown-item" href="/stats/2019">Сезон 2019</a>
-            <!--          </ng-container>-->
-            <!--            <a [routerLink]="'/stats/' + '2020'" class="dropdown-item">Сезон 2020</a>-->
-            <a class="dropdown-item" href="/stats/2020">Сезон 2020</a>
-
+<!--            <a class="dropdown-item" href="/stats/all">Общая статистика команды</a>-->
+            <a class="dropdown-item" [routerLink]="'/stats/all'">Общая статистика команды</a>
+            <a class="dropdown-item" [routerLink]="'/stats/2019'">Сезон 2019</a>
+<!--            <a class="dropdown-item" routerLink="/stats/all" routerLinkActive="active-link">Общая статистика команды</a>-->
+<!--            <a class="dropdown-item" routerLink="/stats/2019" routerLinkActive="active-link">Сезон 2019</a>-->
+<!--            <a class="dropdown-item" routerLink="/stats/2020" routerLinkActive="active-link">Сезон 2020</a>-->
+<!--            <a class="dropdown-item" routerLink="/stats/2021" routerLinkActive="active-link">Сезон 2021</a>-->
+<!--            <a class="dropdown-item" routerLink="/stats/2022" routerLinkActive="active-link">Сезон 2022</a>-->
           </div>
         </li>
         <!--      <li class="nav-item"><a class="nav-link" href="/stats">Статистика (new)</a></li>-->
-        <li *ngIf="authAdmin" class="nav-item"><a class="nav-link" href="/admin">Меню админа</a></li>
+<!--        <li *ngIf="authAdmin" class="nav-item"><a class="nav-link" href="/admin">Меню админа</a></li>-->
+        <li *ngIf="authService.logIn" class="nav-item"><a class="nav-link" routerLink="/admin" routerLinkActive="active">Меню админа</a></li>
       </ul>
       <!--            Правая часть навигационной панели-->
 
@@ -51,11 +50,11 @@
 <!--          <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
 <!--            Войти-->
 <!--          </button>-->
-          <div *ngIf="authAdmin === false" class="dropdown-menu">
+          <div *ngIf="!authService.logIn" class="dropdown-menu">
             <app-login></app-login>
           </div>
 
-          <div *ngIf="authAdmin" class="dropdown-menu">
+          <div *ngIf="authService.logIn" class="dropdown-menu">
             <app-user-account></app-user-account>
           </div>
 

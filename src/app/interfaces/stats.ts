@@ -6,6 +6,7 @@ export interface IStat {
   ab?: number;
   avg?: number;
   obp?: number;
+  soCoeff: number;
   pa?: number;
   run?: number;
   rbi?: number;
@@ -17,5 +18,7 @@ export interface IStat {
   so?: number;
   go?: number;
   fo?: number;
+  ro?: number;
+  hr?: number;
   protocol_id?: number;
 }

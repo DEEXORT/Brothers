@@ -18,6 +18,9 @@ import { SidebarNavigationComponent } from './components/navigation/sidebar-navi
 import { LoginComponent } from './components/navigation/login/login.component';
 import { UserAccountComponent } from './components/navigation/user-account/user-account.component';
 import { UiModalComponent } from './components/ui-components/ui-modal/ui-modal.component';
+import {HashLocationStrategy, LocationStrategy} from '@angular/common';
+import {UiSelectModule} from './ui-components/ui-select/ui-select.module';
+import { NotFoundComponent } from './ui-components/not-found/not-found.component';
 
 @NgModule({
   declarations: [
@@ -36,7 +39,8 @@ import { UiModalComponent } from './components/ui-components/ui-modal/ui-modal.c
     SidebarNavigationComponent,
     LoginComponent,
     UserAccountComponent,
-    UiModalComponent
+    UiModalComponent,
+    NotFoundComponent
   ],
   imports: [
     BrowserModule,
@@ -44,10 +48,12 @@ import { UiModalComponent } from './components/ui-components/ui-modal/ui-modal.c
     RouterModule,
     HttpClientModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    UiSelectModule
   ],
   bootstrap: [AppComponent],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  providers: [{provide: LocationStrategy, useClass: HashLocationStrategy}]
 })
 export class AppModule {
 }

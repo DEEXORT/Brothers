@@ -5,6 +5,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {IPlayer} from '../../../interfaces/player';
 import {IGame} from '../../../interfaces/game';
 import {IStat} from '../../../interfaces/stats';
+import {ITeam} from '../../../interfaces/team';
 
 declare const UIkit: any;
 
@@ -32,8 +33,8 @@ export class ProtocolFormComponent implements OnInit {
   public listSelectedPlayers: Array<number> = [];
   public statsOfPlayersForProtocol: Array<any> = [];
   public listStatsIds: Array<any> = [];
-  // public protocolExt: Array<IProtocolExt> = [];
-  public switchAddPlayers = false;
+  public teamVisitor: ITeam = null;
+  public teamHost: ITeam = null;
 
   constructor(
     private db: DatabaseService,
@@ -57,6 +58,8 @@ export class ProtocolFormComponent implements OnInit {
       so: ['', new Validators()],
       go: ['', new Validators()],
       fo: ['', new Validators()],
+      ro: ['', new Validators()],
+      hr: ['', new Validators()],
     });
     this.onGetPlayers();
     this.onGetGames();
@@ -66,6 +69,7 @@ export class ProtocolFormComponent implements OnInit {
   // Методы связанные с игроками
 
   public onSelectPlayer(id: number): void {
+    console.log(this.listSelectedPlayers[0]);
     if (this.listSelectedPlayers.includes(id)) {
       this.listSelectedPlayers.splice(this.listSelectedPlayers.indexOf(id), 1);
       this.statsOfPlayersForProtocol.forEach((item, i) => {
@@ -74,13 +78,13 @@ export class ProtocolFormComponent implements OnInit {
         }
       });
     } else {
+      console.log('else');
       this.stat = this.onGetStatModel();
       this.stat.player_id = id;
       const stats: any = this.getProtocolFormModel();
       stats.game_id = this.gameId;
       stats.player_id = id;
       this.statsOfPlayersForProtocol.push(stats);
-      console.log(this.statsOfPlayersForProtocol);
       this.listSelectedPlayers.push(id);
     }
   }
@@ -141,9 +145,13 @@ export class ProtocolFormComponent implements OnInit {
     } else {
       this.statsOfPlayersForProtocol = [];
       this.protocol = this.onGetProtocolModel();
-      const result: IProtocol = await this.db.get({table: 'protocols', target: [{key: 'id', value: this.protocolId}]});
+      const result = await this.db.get({table: 'protocols', target: [{key: 'id', value: this.protocolId}]});
       this.protocol = result[0];
       this.statsOfPlayersForProtocol = await this.db.get({table: 'stats', target: [{key: 'protocol_id', value: this.protocol.id}]});
+      this.listSelectedPlayers = []; // Добавление ID игроков в массив из БД
+      this.statsOfPlayersForProtocol.forEach(item => {
+        this.listSelectedPlayers.push(item.player_id);
+      });
       // this.protocol.stats_ids = JSON.parse(this.protocol.stats_ids);
       this.gameId = this.protocol.game_id;
     }
@@ -156,45 +164,25 @@ export class ProtocolFormComponent implements OnInit {
     });
   }
 
-  public async onUpdateNameProtocols(): Promise<void> {
-    // tslint:disable-next-line:max-line-length
-    const protocolsWithDate: Array<any> = await this.db.get({
-      table: 'protocols',
-      select: 'protocols.id id, protocols.name name, protocols.game_id game_id, games.date date',
-      join: [{typeJoin: 'INNER', name: 'games', columnName: 'game_id'}]
-    });
-    console.log(protocolsWithDate);
-    // tslint:disable-next-line:only-arrow-functions typedef
-    protocolsWithDate.sort(function(a, b) {
-      if (a.date > b.date) {
-        return 1;
-      }
-      if (a.date < b.date) {
-        return -1;
-      }
-      return 0;
-    });
-    // tslint:disable-next-line:variable-name
-    let number = 1;
-    this.protocols = [];
-    for (const protocol of protocolsWithDate) {
-      protocol.name = `Протокол №${number}`;
-      number += 1;
-      delete protocol.date;
-      this.protocols.push(protocol);
-    }
-    for (const protocol of this.protocols) {
-      await this.db.update('protocols', protocol.id, protocol, 'id');
-    }
-  }
-
   public async onSaveProtocol(): Promise<void> {
     // tslint:disable-next-line:variable-name
     let _confirm: boolean = await confirm('Сохранить изменения?');
     console.log(this.protocol.game_id);
     this.gameId === null ? (alert('Выберите игру'), _confirm = false) : _confirm = true;
     if (_confirm) {
-      this.protocol.name = this.formProtocol.value.name;
+      // this.protocol.name = this.formProtocol.value.name;
+      // Образование наименования протокола
+      await this.db.get({table: 'games', target: [{key: 'id', value: this.gameId}]}).then((res: IGame) => {
+        this.game = res[0];
+        this.dateValue = this.onRebuildDate(res[0].date);
+      });
+      await this.db.get({table: 'teams', target: [{key: 'id', value: this.game.visitor_id}]}).then((res: ITeam) => {
+        this.teamVisitor = res[0]; // Получение информации о гостях для образования имени протокола
+      });
+      await this.db.get({table: 'teams', target: [{key: 'id', value: this.game.host_id}]}).then((res: ITeam) => {
+        this.teamHost = res[0]; // Получение информации о хозяевах для образования имени протокола
+      });
+      this.protocol.name = this.dateValue + ' | ' + this.teamVisitor.name + '-' + this.teamHost.name;
       if (this.protocolId === 0) {
         this.protocolId = await this.db.save('protocols', this.protocol);
         this.statsOfPlayersForProtocol.forEach(item => item.protocol_id = this.protocolId);
@@ -205,13 +193,18 @@ export class ProtocolFormComponent implements OnInit {
         }
         this.protocol = null;
       } else {
+        await this.db.update('protocols', this.protocolId, this.protocol, 'id'); // Обновление имени протокола
+        // for (const stat of this.statsOfPlayersForProtocol) {
+        //   await this.db.update('stats', stat.id, stat, 'id');
+        // }
+        await this.db.delete('stats', this.protocolId, 'protocol_id'); // Удаление всех статистик по ID протокола
+        this.statsOfPlayersForProtocol.forEach(item => item.protocol_id = this.protocolId); // И добавление статистик вместо старых
         for (const stat of this.statsOfPlayersForProtocol) {
-          await this.db.update('stats', stat.id, stat, 'id');
+          await this.db.save('stats', stat);
         }
         this.protocol = null;
       }
-      this.onGetProtocols();
-      await this.onUpdateNameProtocols();
+      // this.onGetProtocols();
     }
   }
 
@@ -243,6 +236,8 @@ export class ProtocolFormComponent implements OnInit {
       so: 0,
       go: 0,
       fo: 0,
+      ro: 0,
+      hr: 0,
       protocol_id: 0,
     } as IStat;
   }
@@ -285,10 +280,11 @@ export class ProtocolFormComponent implements OnInit {
       so: 0,
       go: 0,
       fo: 0,
+      ro: 0,
+      hr: 0,
     };
   }
-
-  onTakeForm(stats: any) {
+  public onTakeForm(stats: any): any {
     for (const i of this.statsOfPlayersForProtocol) {
       const index = this.statsOfPlayersForProtocol.indexOf(i);
       if (i.player_id === stats.player_id) {

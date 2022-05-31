@@ -5,6 +5,7 @@ import {IPlayer, IPlayerExt} from '../../interfaces/player';
 import {FormBuilder} from '@angular/forms';
 import {IStat} from '../../interfaces/stats';
 import {ActivatedRoute} from '@angular/router';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-statistic',
@@ -22,14 +23,17 @@ export class StatisticComponent implements OnInit {
   public game_ids = [];
   public ids = '';
   public result: IStat[];
+  private subscription: Subscription;
 
   constructor(
     private db: DatabaseService,
     private activatedRoute: ActivatedRoute
   ) {
+    this.subscription = this.activatedRoute.params.subscribe(params => this.yearStat = params.year);
   }
 
   ngOnInit(): void {
+    console.log(this.yearStat);
     // tslint:disable-next-line:use-isnan
     if (isNaN(this.activatedRoute.snapshot.params.year)) {
       this.yearStat = 'all';
@@ -44,15 +48,34 @@ export class StatisticComponent implements OnInit {
 
   // Методы, связанные с игроками
   public async onGetPlayers(): Promise<void> {
+    console.log(this.yearStat);
     this.players = await this.db.getAll('players', 'name');
     for (let i = 0; i < this.players.length; i++) {
       this.players[i] = Object.assign(this.players[i], await this.onGetStats(this.players[i].id));
+      if (this.yearStat === 'all'){
+        await this.db.get({
+          table: 'stats',
+          select: 'COUNT(*) AS count_game',
+          target: [{key: 'player_id', value: this.players[i].id}]}).then(res => {
+          this.players[i].game_number = res[0].count_game;
+        });
+      } else {
+        await this.db.get({
+          table: 'stats',
+          select: 'COUNT(*) AS count_game',
+          join: [{typeJoin: 'INNER', name: 'games', columnName: 'game_id'}],
+          target: [{key: 'player_id', value: this.players[i].id, log_operator: 'AND'},
+            {key: 'date', operator: '>', value: `${this.dateStartSeason}`, log_operator: 'AND'},
+            {key: 'date', operator: '<', value: `${this.dateEndSeason}`, log_operator: ''}]}).then(res => {
+          this.players[i].game_number = res[0].count_game;
+        });
+      }
     }
   }
 
   public async onGetStats(id: number): Promise<any> {
     const statsNames: string[] = ['pa', 'run', 'rbi',
-      'bb', 'hbp', 'one_b', 'two_b', 'three_b', 'so', 'go', 'fo'];
+      'bb', 'hbp', 'one_b', 'two_b', 'three_b', 'hr', 'so', 'go', 'fo', 'ro'];
     let reqSUM = '';
 
     for (const name of statsNames) {
@@ -74,28 +97,14 @@ export class StatisticComponent implements OnInit {
     } else {
       // Статистика за конкретный год
       this.dateEndSeason = this.dateStartSeason + 31536000000;
-      // tslint:disable-next-line:variable-name
-      this.game_ids = await this.db.get(
-        {
-          table: 'games',
-          select: 'id',
-          target: [{key: 'date', operator: '>', value: `${this.dateStartSeason}`, log_operator: 'AND'},
-            {key: 'date', operator: '<', value: `${this.dateEndSeason}`, log_operator: ''}]
-        });
-      // AND date > ${this.seasonStartDate} OR date < ${this.seasonEndDate}
-      // @ts-ignore
-      for (const gameId of this.game_ids) {
-        this.ids += `game_id = ${gameId.id} OR `;
-      }
-      if (this.ids.length > 3) {
-        const addition = `AND (${this.ids.slice(0, -3)})`;
-        // AND (game_id = 1 OR game_id = 2 OR ...)
-        this.result = await this.db.get({
-          table: 'stats',
-          target: [{key: 'player_id', value: id, addition: `${addition}`}],
-          select: reqSUM
-        });
-      }
+      this.result = await this.db.get({
+        table: 'stats',
+        target: [{key: 'player_id', value: id, log_operator: 'AND'},
+          {key: 'date', operator: '>', value: `${this.dateStartSeason}`, log_operator: 'AND'},
+          {key: 'date', operator: '<', value: `${this.dateEndSeason}`, log_operator: ''}],
+        join: [{typeJoin: 'INNER', name: 'games', columnName: 'game_id'}],
+        select: reqSUM
+      });
     }
     return this.result.map(item => {
       for (const key of Object.keys(item)) {
@@ -104,8 +113,12 @@ export class StatisticComponent implements OnInit {
 
       item.ab = item.one_b + item.two_b + item.three_b + item.so + item.go + item.fo;
       item.avg = ((item.one_b + item.two_b + item.three_b) / item.ab) || 0;
+      item.avg = Math.round(item.avg * 1000) / 1000;
       item.obp = ((item.one_b + item.two_b + item.three_b + item.bb +
         item.hbp) / (item.ab + item.bb + item.hbp)) || 0;
+      item.obp = Math.round(item.obp * 1000) / 1000;
+      item.soCoeff = item.so / item.pa || 0;
+      item.soCoeff = Math.round(item.soCoeff * 1000) / 1000;
       return item;
     })[0];
 

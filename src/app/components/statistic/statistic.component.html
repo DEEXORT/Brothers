@@ -8,10 +8,11 @@
 
 
 <div class="table-responsive">
-  <h4 class="mt-3 ml-2">Статистика за {{this.yearStat === 'all' ? 'все сезоны' : this.yearStat + ' сезон'}}</h4>
-<!--  <h4 class="mt-3 ml-2">-->
-<!--    {{this.activatedRoute.snapshot.params.year === 'all' ? 'Статистика за все сезоны'-->
-<!--    : 'Статистика за ' + this.yearStat + ' сезон'}}</h4>-->
+  <h4 class="mt-3 ml-2" (change)="onGetPlayers()">
+    Статистика за {{this.yearStat === 'all' ? 'все сезоны' : this.yearStat + ' сезон'}}</h4>
+  <!--  <h4 class="mt-3 ml-2">-->
+  <!--    {{this.activatedRoute.snapshot.params.year === 'all' ? 'Статистика за все сезоны'-->
+  <!--    : 'Статистика за ' + this.yearStat + ' сезон'}}</h4>-->
   <hr>
   <table class="table table-hover">
     <thead>
@@ -22,6 +23,7 @@
       <th>AB</th>
       <th>AVG</th>
       <th>OBP</th>
+      <th>SO/PA</th>
       <th>R</th>
       <th>RBI</th>
       <th>BB</th>
@@ -29,20 +31,23 @@
       <th>1B</th>
       <th>2B</th>
       <th>3B</th>
+      <th>HR</th>
       <th>SO</th>
       <th>GO</th>
       <th>FO</th>
+      <th>RO</th>
     </tr>
     </thead>
     <tbody>
     <ng-container *ngFor="let player of players">
       <tr>
         <td><a [routerLink]="'/profile/' + player.id">{{player.name}}</a></td>
-        <td>кол-во игр!</td>
+        <td>{{player.game_number}}</td>
         <td>{{player.pa}}</td>
         <td>{{player.ab}}</td>
         <td>{{player.avg}}</td>
         <td>{{player.obp}}</td>
+        <td>{{player.soCoeff}}</td>
         <td>{{player.run}}</td>
         <td>{{player.rbi}}</td>
         <td>{{player.bb}}</td>
@@ -50,9 +55,11 @@
         <td>{{player.one_b}}</td>
         <td>{{player.two_b}}</td>
         <td>{{player.three_b}}</td>
+        <td>{{player.hr}}</td>
         <td>{{player.so}}</td>
         <td>{{player.go}}</td>
         <td>{{player.fo}}</td>
+        <td>{{player.ro}}</td>
       </tr>
     </ng-container>
     </tbody>

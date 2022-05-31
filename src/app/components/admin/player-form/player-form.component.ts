@@ -3,8 +3,9 @@ import {IPlayer} from '../../../interfaces/player';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {DatabaseService} from '../../../services/database.service';
 import {IPosition} from '../../../interfaces/position';
-import {Md5} from 'md5-typescript';
-import {IAuth} from '../../../interfaces/auth';
+import {HttpClient, HttpEventType} from '@angular/common/http';
+import {finalize} from 'rxjs/operators';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-player-form',
@@ -17,11 +18,14 @@ export class PlayerFormComponent implements OnInit {
   public playerId: number = null;
   public formPlayer: FormGroup;
   public position: IPosition = null;
-  public auth: IAuth = null;
+  public fileName = '';
+  uploadProgress: number;
+  uploadSub: Subscription;
 
   constructor(
     private db: DatabaseService,
-    private fm: FormBuilder
+    private fm: FormBuilder,
+    private http: HttpClient
   ) {
   }
 
@@ -30,10 +34,8 @@ export class PlayerFormComponent implements OnInit {
       name: ['', new Validators()],
       bat: ['', new Validators()],
       throw: ['', new Validators()],
-      login: ['', new Validators()],
-      role: ['', new Validators()],
-      password: ['', new Validators()],
       game_number: ['', new Validators()],
+      photo: ['', new Validators()]
     });
     this.onGetPlayers();
   }
@@ -49,7 +51,6 @@ export class PlayerFormComponent implements OnInit {
     if (this.playerId === 0) {
       this.player = this.onGetPlayerModel();
       this.position = this.onGetPositionClear();
-      this.auth = this.onGetAuthModel();
       this.onSetPlayer();
     } else {
       this.db.get({table: 'players', target: [{key: 'id', value: this.playerId}]}).then((result: IPlayer) => {
@@ -60,7 +61,6 @@ export class PlayerFormComponent implements OnInit {
         this.position = result[0];
         this.onSetPlayer();
       });
-      this.auth = this.onGetAuthModel();
     }
   }
 
@@ -71,9 +71,7 @@ export class PlayerFormComponent implements OnInit {
       bat: this.player.bat,
       throw: this.player.throw,
       game_number: this.player.game_number,
-      login: '',
-      password: '',
-      role: this.player.role
+      photo: this.player.photo
     });
     this.position = {
       player_id: this.position.player_id,
@@ -92,7 +90,7 @@ export class PlayerFormComponent implements OnInit {
   public onDeletePlayer(id: number): void {
     this.db.delete('stats, positions', id, 'player_id').then(result => {
       if (result) {
-        console.log(true);
+        console.log(result);
       }
     });
     this.db.delete('players', id, 'id').then(result => {
@@ -115,35 +113,22 @@ export class PlayerFormComponent implements OnInit {
     if (_confirm) {
 
       const player: IPlayer = this.player;
-      const auth: IAuth = this.auth;
-      auth.login = this.formPlayer.value.login;
-      auth.password = this.formPlayer.value.password;
-      player.game_number = player.game_number === '' ? '---' : player.game_number;
-      auth.role = this.formPlayer.value.role === '' ? 'Пользователь' : this.formPlayer.value.role;
-      player.role = auth.role;
       // Хеширование пароля
       const salt = Math.random().toString(36).substring(7);
-      auth.password = Md5.init(auth.password + salt);
-      auth.salt = salt;
-      auth.player_id = this.player.id;
       player.name = this.formPlayer.value.name;
       player.bat = this.formPlayer.value.bat;
       player.throw = this.formPlayer.value.throw;
+      // tslint:disable-next-line:no-unused-expression
+      player.game_number = this.formPlayer.value.game_number === '' ? '---' : this.formPlayer.value.game_number;
       this.onSetPlayer();
-
       if (this.playerId === 0) {
         this.db.save('players', player).then(result => {
           if (result) {
             this.position.player_id = result;
-            auth.player_id = result;
             // tslint:disable-next-line:variable-name
             this.db.save('positions', this.position).then(_result => {
               if (_result) {
-                this.db.save('users', auth).then(resultant => {
-                  if (resultant) {
-                    this.onGetPlayers();
-                  }
-                });
+                  this.onGetPlayers();
               }
               this.player = null;
             });
@@ -156,11 +141,7 @@ export class PlayerFormComponent implements OnInit {
             // tslint:disable-next-line:variable-name
             this.db.update('positions', this.player.id, this.position, 'player_id').then(_result => {
               if (_result) {
-                this.db.update('users', this.player.id, auth, 'player_id').then(resultant => {
-                  if (resultant) {
-                    this.onGetPlayers();
-                  }
-                });
+                  this.onGetPlayers();
               }
               this.player = null;
             });
@@ -185,39 +166,53 @@ export class PlayerFormComponent implements OnInit {
     };
   }
 
-  private onGetAuthModel(): IAuth {
-    return {
-      player_id: 0,
-      login: '',
-      role: '',
-      password: '',
-      salt: ''
-    } as IAuth;
-  }
-
   private onGetPlayerModel(): IPlayer {
     return {
       name: '',
       bat: '',
       throw: '',
       game_number: '',
-      role: '',
-      defeatPosition: []
+      photo: ''
     } as IPlayer;
   }
 
-  public transliterate(text, engToRus): string {
-    // tslint:disable-next-line:prefer-const one-variable-per-declaration
-    let rus = 'щ   ш  ч  ц  ю  я  ё  ж  ы  э  а б в г д е з и й к л м н о п р с т у ф х ь'.split(/ +/g),
-      // tslint:disable-next-line:prefer-const
-      eng = 'shh sh ch cz yu ya yo zh  i e a b v g d e z i j k l m n o p r s t u f x '.split(/ +/g);
-    for (let x = 0; x < rus.length; x++) {
-      text = text.split(engToRus ? eng[x] : rus[x]).join(engToRus ? rus[x] : eng[x]);
-      // tslint:disable-next-line:max-line-length
-      text = text.split(engToRus ? eng[x].toUpperCase() : rus[x].toUpperCase()).join(engToRus ? rus[x].toUpperCase() : eng[x].toUpperCase());
-    }
-    return text;
+  // public transliterate(text, engToRus): string {
+  //   // tslint:disable-next-line:prefer-const one-variable-per-declaration
+  //   let rus = 'щ   ш  ч  ц  ю  я  ё  ж  ы  э  а б в г д е з и й к л м н о п р с т у ф х ь'.split(/ +/g),
+  //     // tslint:disable-next-line:prefer-const
+  //     eng = 'shh sh ch cz yu ya yo zh  i e a b v g d e z i j k l m n o p r s t u f x '.split(/ +/g);
+  //   for (let x = 0; x < rus.length; x++) {
+  //     text = text.split(engToRus ? eng[x] : rus[x]).join(engToRus ? rus[x] : eng[x]);
+  //     // tslint:disable-next-line:max-line-length
+  //     text = text.split(engToRus ? eng[x].toUpperCase() : rus[x].toUpperCase()).join(engToRus ?
+  //     rus[x].toUpperCase() : eng[x].toUpperCase());
+  //   }
+  //   return text;
+  //
+  // }
 
-  }
+  // tslint:disable-next-line:typedef
+  // onFileSelected(event) {
+  //   const file: File = event.target.files[0];
+  //   if (file) {
+  //     this.fileName = file.name;
+  //     const formData = new FormData();
+  //     formData.append('thumbnail', file, file.name);
+  //     console.log(formData);
+  //
+  //     const upload$ = this.http.post('/api/upload', formData);
+  //
+  //     this.uploadSub = upload$.subscribe((success) => alert('Успешно'), (error) => alert(error));
+  //   }
+  // }
 
+  // cancelUpload() {
+  //   this.uploadSub.unsubscribe();
+  //   this.reset();
+  // }
+  //
+  // reset() {
+  //   this.uploadProgress = null;
+  //   this.uploadSub = null;
+  // }
 }

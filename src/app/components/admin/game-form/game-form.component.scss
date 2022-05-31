@@ -1,0 +1,14 @@
+.dex-protocol-scroll {
+  overflow-x: scroll;
+  //width: 80vw;
+}
+
+.dex-grid {
+  display: grid;
+  grid-template-columns: 200px repeat(12, 62px);
+  grid-column-gap: 20px;
+}
+
+.center {
+  text-align: center
+}

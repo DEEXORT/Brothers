@@ -129,7 +129,6 @@ export class GameFormComponent implements OnInit {
       this.host_innings = ('' + this.game.host_innings).split('/').map(Number); // парсинг числа в массив (Гости)
       this.hostInningsControls = this.fm.array(this.host_innings);
       this.onSetGame();
-
     }
   }
 

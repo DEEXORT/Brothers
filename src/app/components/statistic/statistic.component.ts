@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {DatabaseService} from '../../services/database.service';
 import {IUser} from '../../interfaces/user';
 import {IPlayer, IPlayerExt} from '../../interfaces/player';
@@ -12,7 +12,7 @@ import {Subscription} from 'rxjs';
   templateUrl: './statistic.component.html',
   styleUrls: ['./statistic.component.scss']
 })
-export class StatisticComponent implements OnInit {
+export class StatisticComponent implements OnInit, OnDestroy {
   public yearStat = null;
   public players: Array<IPlayerExt> = [];
   public player: IPlayer = null;
@@ -29,21 +29,26 @@ export class StatisticComponent implements OnInit {
     private db: DatabaseService,
     private activatedRoute: ActivatedRoute
   ) {
-    this.subscription = this.activatedRoute.params.subscribe(params => this.yearStat = params.year);
   }
 
   ngOnInit(): void {
-    console.log(this.yearStat);
-    // tslint:disable-next-line:use-isnan
-    if (isNaN(this.activatedRoute.snapshot.params.year)) {
-      this.yearStat = 'all';
-    } else {
-      this.yearStat = Number(this.activatedRoute.snapshot.params.year);
-      this.dateStartSeason = new Date(`1.1.${this.yearStat}`).getTime();
-    }
-    // this.yearStat = Number(this.activatedRoute.snapshot.params.year);
-    // this.dateValue = '1.1.' + String(this.yearStat);
-    this.onGetPlayers();
+    this.subscription = this.activatedRoute.params
+      .subscribe(params => {
+      // tslint:disable-next-line:use-isnan
+      if (isNaN(params.year)) {
+        this.yearStat = 'all';
+      } else {
+        this.yearStat = Number(params.year);
+        this.dateStartSeason = new Date(`1.1.${this.yearStat}`).getTime();
+      }
+      // this.yearStat = Number(this.activatedRoute.snapshot.params.year);
+      // this.dateValue = '1.1.' + String(this.yearStat);
+      this.onGetPlayers();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   // Методы, связанные с игроками

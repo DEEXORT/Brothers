@@ -43,7 +43,7 @@ export class StatisticComponent implements OnInit, OnDestroy {
       }
       // this.yearStat = Number(this.activatedRoute.snapshot.params.year);
       // this.dateValue = '1.1.' + String(this.yearStat);
-      this.onGetPlayers();
+      this.onGetStats(1);
     });
   }
 
@@ -79,38 +79,51 @@ export class StatisticComponent implements OnInit, OnDestroy {
   }
 
   public async onGetStats(id: number): Promise<any> {
+    this.players = await this.db.getAll('players', 'name');
     const statsNames: string[] = ['pa', 'run', 'rbi',
       'bb', 'hbp', 'one_b', 'two_b', 'three_b', 'hr', 'so', 'go', 'fo', 'ro'];
     let reqSUM = '';
 
     for (const name of statsNames) {
-      reqSUM += `SUM(stats.${name}) AS ${name}, `;
+      // reqSUM += `SUM(stats.${name}) AS ${name}, `;
+      reqSUM += `SUM(stats.${name}) AS ${name}, `; // Пепечисление SELECT из таблицы stats
     }
 
     reqSUM = reqSUM.slice(0, reqSUM.length - 2);
-    // const reqRows = this.db.get({table: 'stats', target: {key: 'player_id', value: id}, select: 'COUNT(1)'});
-    // console.log('01.01.' + this.yearStat);
-    // const newDate = this.onRebuildDate('1.1.' + this.yearStat);
+    let selectPartRequest = '';
+
     // tslint:disable-next-line:no-conditional-assignment use-isnan
     if (this.yearStat === 'all') {
       // Статистика за все время
-      this.result = await this.db.get({
-        table: 'stats',
-        target: [{key: 'player_id', value: id}],
-        select: reqSUM
+      for (const player of this.players) {
+        selectPartRequest += `UNION SELECT ${reqSUM}, players.name, players.id, COUNT(*) AS game_number FROM stats
+      JOIN players ON stats.player_id = players.id
+      JOIN games ON stats.game_id = games.id
+      WHERE players.id = ${player.id} `;
+      }
+      selectPartRequest = selectPartRequest.slice(6);
+
+      this.result = await this.db.getAny({
+        selectRequest: `${selectPartRequest}`
       });
     } else {
       // Статистика за конкретный год
       this.dateEndSeason = this.dateStartSeason + 31536000000;
-      this.result = await this.db.get({
-        table: 'stats',
-        target: [{key: 'player_id', value: id, log_operator: 'AND'},
-          {key: 'date', operator: '>', value: `${this.dateStartSeason}`, log_operator: 'AND'},
-          {key: 'date', operator: '<', value: `${this.dateEndSeason}`, log_operator: ''}],
-        join: [{typeJoin: 'INNER', name: 'games', columnName: 'game_id'}],
-        select: reqSUM
+      for (const player of this.players) {
+        selectPartRequest += `UNION SELECT ${reqSUM}, players.name, players.id, COUNT(*) AS game_number FROM stats
+      JOIN players ON stats.player_id = players.id
+      JOIN games ON stats.game_id = games.id
+      WHERE players.id = ${player.id} AND games.date > ${this.dateStartSeason} AND games.date < ${this.dateEndSeason} `;
+      }
+      selectPartRequest = selectPartRequest.slice(6);
+
+      this.result = await this.db.getAny({
+        selectRequest: `${selectPartRequest}`
       });
     }
+
+    this.players = this.result;
+
     return this.result.map(item => {
       for (const key of Object.keys(item)) {
         item[key] = item[key] === null ? 0 : item[key];

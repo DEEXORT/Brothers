@@ -21,4 +21,5 @@ export interface IStat {
   ro?: number;
   hr?: number;
   protocol_id?: number;
+  date: number;
 }

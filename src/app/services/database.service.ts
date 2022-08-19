@@ -50,6 +50,25 @@ export class DatabaseService {
       .toPromise();
   }
 
+  public async getAny<T>(data: any): Promise<T> {
+    return await this.http.post(
+      `${setting.connect}/api/get_any`, data,
+      {
+        observe: 'response'
+      })
+      .pipe(
+        map(response => {
+          if (response.ok) {
+            return response.body as T;
+          } else {
+            console.log(response.status);
+            return null;
+          }
+        })
+      )
+      .toPromise();
+  }
+
   public async login<T>(data: any): Promise<T> {
     return await this.http.post(
       `${setting.connect}/api/login`, data,

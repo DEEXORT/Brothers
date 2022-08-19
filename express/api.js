@@ -13,22 +13,18 @@ function createRouter(db) {
 
       let requestString = `SELECT ${paramsSelect} FROM ${table}`;
 
-      if (req.body.filters) {
-        const key = req.body.target.key;
-        const value = req.body.target.value;
-        requestString += ` ORDER BY ${key} ${value}`;
-      }
-
       if (req.body.join) {
         const main_table = table;
         const tables = req.body.join; // [{typeJoin: 'INNER', name: 'games', columnName: 'game_id'}, {typeJoin: 'INNER', name: 'players', columnName: 'player_id'}]
+        const listJoin = req.body.join;
 
-        for (let table of tables){
-          const typeJoin = table.typeJoin;
-          const name = table.name;
-          const columnName = table.columnName;
-          requestString += ` ${typeJoin} JOIN ${name} ON ${main_table}.${columnName} = ${name}.id`;
-        }
+        requestString += ` ${listJoin}`
+        // for (let table of tables){
+        //   const typeJoin = table.typeJoin;
+        //   const name = table.name;
+        //   const columnName = table.columnName;
+        //   requestString += ` ${typeJoin} JOIN ${name} ON ${main_table}.${columnName} = ${name}.id`;
+        // }
       }
 
     if (req.body.target) {
@@ -40,13 +36,19 @@ function createRouter(db) {
       for (let target of targets) {
         const key = target.key;
         const value = target.value;
-        console.log(value);
         const operator = target.operator === undefined ? '=' : target.operator;
         const log_operator = target.log_operator === undefined ? '' : target.log_operator;
         const addition = target.addition === undefined ? '' : target.addition;
         target_sql += `${key} ${operator} ${value} ${log_operator} ${addition}`;
       }
       requestString += ` WHERE ${target_sql}` ;
+      console.log(requestString);
+    }
+
+    if (req.body.filters) {
+      const key = req.body.filters.key;
+      const value = req.body.filters.value;
+      requestString += ` ORDER BY ${key} ${value}`;
     }
 
       db.query(requestString, (error, results) => {
@@ -177,6 +179,21 @@ function createRouter(db) {
         }
       }
     );
+  });
+
+  router.post('/api/get_any', function (req, res, next) {
+    const request = req.body.selectRequest;
+
+    db.query(`${request}`,
+          (error, results) => {
+            if (error) {
+              console.log(error);
+              res.status(500).json({status: 'error'});
+            } else {
+              res.status(200).json(results);
+            }
+          }
+        );
   });
 
   return router;

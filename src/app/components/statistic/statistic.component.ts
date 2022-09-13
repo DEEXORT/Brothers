@@ -1,11 +1,10 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {DatabaseService} from '../../services/database.service';
-import {IUser} from '../../interfaces/user';
 import {IPlayer, IPlayerExt} from '../../interfaces/player';
-import {FormBuilder} from '@angular/forms';
 import {IStat} from '../../interfaces/stats';
 import {ActivatedRoute} from '@angular/router';
 import {Subscription} from 'rxjs';
+import {IAccord} from '../../interfaces/accordance';
 
 @Component({
   selector: 'app-statistic',
@@ -20,10 +19,27 @@ export class StatisticComponent implements OnInit, OnDestroy {
   public dateEndSeason: number = null;
   public dateStartSeason: number = null;
   // tslint:disable-next-line:variable-name
-  public game_ids = [];
   public ids = '';
   public result: IStat[];
+  public statName = {head: 'AVG', body: 'avg'};
   private subscription: Subscription;
+  public checkStat = true;
+  public prevSelectStat = 'avg';
+  // Фильтрация заголовок для мобильного режима
+  public statsNamesFilter: Array<IAccord> = [{firstName: 'AVG', secondName: 'avg'}, {firstName: 'OBP', secondName: 'obp'},
+    {firstName: 'SO/PA', secondName: 'soCoeff'}, {firstName: 'R', secondName: 'run'}, {firstName: 'RBI', secondName: 'rbi'},
+    {firstName: 'BB', secondName: 'bb'}, {firstName: 'HBP', secondName: 'hbp'}, {firstName: '1B', secondName: 'one_b'},
+    {firstName: '2B', secondName: 'two_b'}, {firstName: '3B', secondName: 'three_b'}, {firstName: 'HR', secondName: 'hr'},
+    {firstName: 'SO', secondName: 'so'}, {firstName: 'GO', secondName: 'go'}, {firstName: 'FO', secondName: 'fo'},
+    {firstName: 'RO', secondName: 'ro'}];
+  // Заголовки таблицы для полноэкранного режима
+  public statsNamesAll: Array<IAccord> = [{firstName: 'G', secondName: 'game_number'}, {firstName: 'PA', secondName: 'pa'},
+    {firstName: 'AB', secondName: 'ab'}, {firstName: 'AVG', secondName: 'avg'}, {firstName: 'OBP', secondName: 'obp'},
+    {firstName: 'SO/PA', secondName: 'soCoeff'}, {firstName: 'R', secondName: 'run'}, {firstName: 'RBI', secondName: 'rbi'},
+    {firstName: 'BB', secondName: 'bb'}, {firstName: 'HBP', secondName: 'hbp'}, {firstName: '1B', secondName: 'one_b'},
+    {firstName: '2B', secondName: 'two_b'}, {firstName: '3B', secondName: 'three_b'}, {firstName: 'HR', secondName: 'hr'},
+    {firstName: 'SO', secondName: 'so'}, {firstName: 'GO', secondName: 'go'}, {firstName: 'FO', secondName: 'fo'},
+    {firstName: 'RO', secondName: 'ro'}];
 
   constructor(
     private db: DatabaseService,
@@ -41,9 +57,7 @@ export class StatisticComponent implements OnInit, OnDestroy {
         this.yearStat = Number(params.year);
         this.dateStartSeason = new Date(`1.1.${this.yearStat}`).getTime();
       }
-      // this.yearStat = Number(this.activatedRoute.snapshot.params.year);
-      // this.dateValue = '1.1.' + String(this.yearStat);
-      this.onGetStats(1);
+      this.onGetStats();
     });
   }
 
@@ -51,34 +65,40 @@ export class StatisticComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
-  // Методы, связанные с игроками
-  public async onGetPlayers(): Promise<void> {
-    console.log(this.yearStat);
-    this.players = await this.db.getAll('players', 'name');
-    for (let i = 0; i < this.players.length; i++) {
-      this.players[i] = Object.assign(this.players[i], await this.onGetStats(this.players[i].id));
-      if (this.yearStat === 'all'){
-        await this.db.get({
-          table: 'stats',
-          select: 'COUNT(*) AS count_game',
-          target: [{key: 'player_id', value: this.players[i].id}]}).then(res => {
-          this.players[i].game_number = res[0].count_game;
-        });
-      } else {
-        await this.db.get({
-          table: 'stats',
-          select: 'COUNT(*) AS count_game',
-          join: [{typeJoin: 'INNER', name: 'games', columnName: 'game_id'}],
-          target: [{key: 'player_id', value: this.players[i].id, log_operator: 'AND'},
-            {key: 'date', operator: '>', value: `${this.dateStartSeason}`, log_operator: 'AND'},
-            {key: 'date', operator: '<', value: `${this.dateEndSeason}`, log_operator: ''}]}).then(res => {
-          this.players[i].game_number = res[0].count_game;
-        });
-      }
+  public async sortStat(field, reverse): Promise<any> {
+    if (this.prevSelectStat !== field){
+      reverse = true;
+      this.checkStat = reverse;
+      this.prevSelectStat = field;
+    } else {
+      reverse = !reverse;
+      this.checkStat = reverse;
+      this.prevSelectStat = field;
     }
+    // tslint:disable-next-line:no-shadowed-variable variable-name
+    const sort_by = (field, reverse, primer) => {
+      const key = primer ?
+        // tslint:disable-next-line:only-arrow-functions typedef
+        function(x) {
+          return primer(x[field]);
+        } :
+        // tslint:disable-next-line:only-arrow-functions typedef
+        function(x) {
+          return x[field];
+        };
+
+      reverse = !reverse ? 1 : -1;
+
+      // tslint:disable-next-line:only-arrow-functions typedef
+      return function(a, b) {
+        // @ts-ignore
+        return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+      };
+    };
+    this.players.sort(sort_by(field, reverse, parseFloat));
   }
 
-  public async onGetStats(id: number): Promise<any> {
+  public async onGetStats(): Promise<any> {
     this.players = await this.db.getAll('players', 'name');
     const statsNames: string[] = ['pa', 'run', 'rbi',
       'bb', 'hbp', 'one_b', 'two_b', 'three_b', 'hr', 'so', 'go', 'fo', 'ro'];
@@ -86,7 +106,7 @@ export class StatisticComponent implements OnInit, OnDestroy {
 
     for (const name of statsNames) {
       // reqSUM += `SUM(stats.${name}) AS ${name}, `;
-      reqSUM += `SUM(stats.${name}) AS ${name}, `; // Пепечисление SELECT из таблицы stats
+      reqSUM += `SUM(stats.${name}) AS ${name}, `; // Перечисление SELECT из таблицы stats
     }
 
     reqSUM = reqSUM.slice(0, reqSUM.length - 2);
@@ -102,6 +122,7 @@ export class StatisticComponent implements OnInit, OnDestroy {
       WHERE players.id = ${player.id} `;
       }
       selectPartRequest = selectPartRequest.slice(6);
+      selectPartRequest += 'ORDER BY pa DESC';
 
       this.result = await this.db.getAny({
         selectRequest: `${selectPartRequest}`
@@ -116,13 +137,14 @@ export class StatisticComponent implements OnInit, OnDestroy {
       WHERE players.id = ${player.id} AND games.date > ${this.dateStartSeason} AND games.date < ${this.dateEndSeason} `;
       }
       selectPartRequest = selectPartRequest.slice(6);
+      selectPartRequest += 'ORDER BY pa DESC';
 
       this.result = await this.db.getAny({
         selectRequest: `${selectPartRequest}`
       });
     }
 
-    this.players = this.result;
+    this.players = this.result.filter(item => item.id != null); // Удаление лишних строк, полученных из БД
 
     return this.result.map(item => {
       for (const key of Object.keys(item)) {
@@ -139,6 +161,6 @@ export class StatisticComponent implements OnInit, OnDestroy {
       item.soCoeff = Math.round(item.soCoeff * 1000) / 1000;
       return item;
     })[0];
-
   }
+
 }

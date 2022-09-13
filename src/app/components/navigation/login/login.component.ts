@@ -27,6 +27,6 @@ export class LoginComponent implements OnInit {
 
   public async onLogin(): Promise<void> {
     this.authService.login(this.formLogin.value.login, this.formLogin.value.password);
-    window.location.reload();
+    // window.location.reload();
   }
 }

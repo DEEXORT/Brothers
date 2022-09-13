@@ -3,8 +3,7 @@ import {IPlayer} from '../../../interfaces/player';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {DatabaseService} from '../../../services/database.service';
 import {IPosition} from '../../../interfaces/position';
-import {HttpClient, HttpEventType} from '@angular/common/http';
-import {finalize} from 'rxjs/operators';
+import {HttpClient} from '@angular/common/http';
 import {Subscription} from 'rxjs';
 
 @Component({
@@ -175,44 +174,4 @@ export class PlayerFormComponent implements OnInit {
       photo: ''
     } as IPlayer;
   }
-
-  // public transliterate(text, engToRus): string {
-  //   // tslint:disable-next-line:prefer-const one-variable-per-declaration
-  //   let rus = 'щ   ш  ч  ц  ю  я  ё  ж  ы  э  а б в г д е з и й к л м н о п р с т у ф х ь'.split(/ +/g),
-  //     // tslint:disable-next-line:prefer-const
-  //     eng = 'shh sh ch cz yu ya yo zh  i e a b v g d e z i j k l m n o p r s t u f x '.split(/ +/g);
-  //   for (let x = 0; x < rus.length; x++) {
-  //     text = text.split(engToRus ? eng[x] : rus[x]).join(engToRus ? rus[x] : eng[x]);
-  //     // tslint:disable-next-line:max-line-length
-  //     text = text.split(engToRus ? eng[x].toUpperCase() : rus[x].toUpperCase()).join(engToRus ?
-  //     rus[x].toUpperCase() : eng[x].toUpperCase());
-  //   }
-  //   return text;
-  //
-  // }
-
-  // tslint:disable-next-line:typedef
-  // onFileSelected(event) {
-  //   const file: File = event.target.files[0];
-  //   if (file) {
-  //     this.fileName = file.name;
-  //     const formData = new FormData();
-  //     formData.append('thumbnail', file, file.name);
-  //     console.log(formData);
-  //
-  //     const upload$ = this.http.post('/api/upload', formData);
-  //
-  //     this.uploadSub = upload$.subscribe((success) => alert('Успешно'), (error) => alert(error));
-  //   }
-  // }
-
-  // cancelUpload() {
-  //   this.uploadSub.unsubscribe();
-  //   this.reset();
-  // }
-  //
-  // reset() {
-  //   this.uploadProgress = null;
-  //   this.uploadSub = null;
-  // }
 }

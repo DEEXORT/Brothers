@@ -6,7 +6,7 @@ export interface IStat {
   ab?: number;
   avg?: number;
   obp?: number;
-  soCoeff: number;
+  soCoeff?: number;
   pa?: number;
   run?: number;
   rbi?: number;
